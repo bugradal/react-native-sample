@@ -3,6 +3,8 @@ import { Text, View, StyleSheet, Alert, ScrollView } from 'react-native';
 import Constants from 'expo-constants';
 import { TextInput, Button, Avatar } from 'react-native-paper';
 import AwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import Axios from 'axios';
+
 
 export default function Login({ navigation }) {
   // useState Using
@@ -20,7 +22,28 @@ export default function Login({ navigation }) {
     } else if (email == '') {
       Alert.alert('E-mail is empty!');
     } else {
-      console.log('fncLogin Call', email, password);
+      //console.log('fncLogin Call', email, password);
+
+      // https://www.jsonbulut.com/json/userLogin.php?ref=c7c2de28d81d3da4a386fc8444d574f2&userEmail=bugra@mail.com&userPass=bd12345.&face=no
+      const url = 'https://www.jsonbulut.com/json/userLogin.php';
+      const params = {
+        ref: 'c7c2de28d81d3da4a386fc8444d574f2',
+        userEmail: email,
+        userPass: password,
+        face: 'no',
+      };
+      Axios.get(url, { params: params }).then((res) => {
+        const u = res.data.user[0];
+        const durum = u.durum;
+        const message = u.mesaj;
+
+        if (durum == true) {
+          // sayfa geçişi yap
+          navigation.navigate('product');
+        } else {
+          Alert.alert(message);
+        }
+      });
     }
   };
 
@@ -104,7 +127,7 @@ const styles = StyleSheet.create({
   btnStyle: {
     marginTop: 20,
     padding: 10,
-    backgroundColor:'#598ee3'
+    backgroundColor: '#598ee3',
   },
   txtField: {
     marginTop: 10,

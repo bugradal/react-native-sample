@@ -1,25 +1,28 @@
 import React, { useState } from 'react';
+import validator from 'validator';
 import { Text, View, StyleSheet, Alert, ScrollView } from 'react-native';
 import Constants from 'expo-constants';
 import { TextInput, Button, Avatar } from 'react-native-paper';
 import AwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import Axios from 'axios';
 
 export default function SignUp({ navigation }) {
   // useState Using
-  const [name, setName] = useState('');
+  const [username, setName] = useState('');
   const [surname, setSurname] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-
- var pattern = new RegExp(
+//validator is used instead
+/* var pattern = new RegExp(
         /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/
       );
+*/
 
   // create Function
   const fncSignUp = () => {
-    if (name == '') {
+    if (username == '') {
       Alert.alert('Name is empty!');
     } else if (surname == '') {
       Alert.alert('Surname is empty!');
@@ -29,11 +32,37 @@ export default function SignUp({ navigation }) {
       Alert.alert('E-mail is empty!');
     } else if (password == '') {
       Alert.alert('Password is empty!');
+    /*
     } else if (!pattern.test(email)) {
         Alert.alert('Please enter valid email address.');
-      
+    */
+    } else if (validator.isEmail(email)==false) {
+      Alert.alert('Please enter valid email address!');  
     } else {
-      console.log('fncSignUp Call', name, surname, phone, email, password);
+      //console.log('fncSignUp Call', name, surname, phone, email, password);
+
+      const url = 'https://www.jsonbulut.com/json/userRegister.php'
+      const params = {
+        ref: 'c7c2de28d81d3da4a386fc8444d574f2',
+        userName: username,
+        userSurname: surname,
+        userPhone: phone,
+        userMail: email,
+        userPass: password
+      }
+      Axios.get(url, { params: params }).then( res => {
+          const u =  res.data.user[0]
+          const durum = u.durum
+          const message = u.mesaj
+          if ( durum == true ) {
+              Alert.alert(message + ", Lütfen giriş yapınız!")
+              navigation.navigate("login")
+          }else {
+            Alert.alert(message)
+          }
+      })
+
+
     }
   };
 
@@ -52,7 +81,7 @@ export default function SignUp({ navigation }) {
 
         <TextInput
           label="Name"
-          value={name}
+          value={username}
           onChangeText={(text) => setName(text)}
           mode="outlined"
           keyboardType="default"
